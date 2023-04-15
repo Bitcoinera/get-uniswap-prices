@@ -14,6 +14,7 @@
     "@uniswap/v3-sdk": "^3.8.2",
     "axios": "^0.26.1",
     "dotenv": "^16.0.0",
-    "ethers": "^5.6.2"
+    "ethers": "^5.6.2",
+    "graphql-request": "^6.0.0"
   }
 }

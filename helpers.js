@@ -1,5 +1,6 @@
 const axios = require("axios");
 const { ethers } = require("ethers");
+const { request } = require("graphql-request");
 const {
   ChainId,
   Fetcher,
@@ -11,10 +12,30 @@ const {
 } = require("@uniswap/sdk");
 require("dotenv").config();
 
+const ETH_PRICE_QUERY = `
+  query bundles {
+    bundles(where: { id: "1" }) {
+      ethPrice
+    }
+  }
+`;
+
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
 const provider = new ethers.providers.JsonRpcProvider(process.env.INFURA_URL);
 
-const uniswapV2GetPrice = async (token1, token2) => {
+async function fetchEthPrice() {
+  try {
+    const res = await request(
+      "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2",
+      ETH_PRICE_QUERY
+    );
+    return Number(res.bundles[0].ethPrice).toFixed(2);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+const getUniswapV2Price = async (token1, token2) => {
   const t1 = await Fetcher.fetchTokenData(
     ChainId.MAINNET,
     token1.address,
@@ -45,7 +66,7 @@ const uniswapV2GetPrice = async (token1, token2) => {
   } catch (e) {
     // some reverts without a reason, so we will simply retry each time in this case
     console.log("retry");
-    return await uniswapV2GetPrice(token1, token2);
+    return await getUniswapV2Price(token1, token2);
   }
 };
 
@@ -73,7 +94,8 @@ const getPoolImmutables = async (poolContract) => {
 };
 
 module.exports = {
+  fetchEthPrice,
   getAbi,
   getPoolImmutables,
-  uniswapV2GetPrice,
+  getUniswapV2Price,
 };

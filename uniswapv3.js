@@ -6,7 +6,7 @@ const {
   abi: QuoterABI,
 } = require("@uniswap/v3-periphery/artifacts/contracts/lens/Quoter.sol/Quoter.json");
 
-const { getAbi, getPoolImmutables } = require("./helpers");
+const { fetchEthPrice, getAbi, getPoolImmutables } = require("./helpers");
 
 require("dotenv").config();
 const INFURA_URL = process.env.INFURA_URL;
@@ -68,9 +68,12 @@ const getPrice = async (inputAmount) => {
     0
   );
 
-  const amountOut = ethers.utils.formatUnits(quotedAmountOut, tokenDecimals1);
-
-  console.log(`${amountOut} ETH`);
+  // TODO: deal with decimals
+  const price = ethers.utils.formatUnits(quotedAmountOut, tokenDecimals1);
+  console.log(`${price} ETH`);
+  const ethPrice = await fetchEthPrice();
+  console.log((price * ethPrice).toString(), "$");
+  return price * ethPrice;
 };
 
 getPrice(1);
