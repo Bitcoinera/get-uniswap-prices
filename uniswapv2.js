@@ -1,5 +1,5 @@
 const { ethers } = require("ethers");
-const { uniswapV2Factory } = require("./helpers");
+const { uniswapV2GetPrice } = require("./helpers");
 
 const args = {
   inputTokenAddress: ethers.utils.getAddress(
@@ -20,11 +20,10 @@ async function getPrice(args) {
     outputTokenAddress,
     inputAmount,
   } = args;
-  const uniswapV2 = await uniswapV2Factory(
+  const price = await uniswapV2GetPrice(
     { symbol: inputTokenSymbol, address: inputTokenAddress },
     { symbol: outputTokenSymbol, address: outputTokenAddress }
   );
-  const price = await uniswapV2.getPrice();
   console.log(price, "ETH");
 }
 
